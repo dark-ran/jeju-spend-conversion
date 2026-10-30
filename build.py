@@ -189,6 +189,26 @@ gap_won = sum((TARGET - idx['T2'][c['이름']]) * jeju['T2'] * visit['T2', c['�
 assert all(idx['T2'][c['이름']] < TARGET for c in weak)
 
 
+# 임계값 민감도: 0.8을 0.75~0.85로 움직여도 같은 지역이 남는지
+sens = {str(th): sorted(n for n in core if idx['T1'][n] < th and idx['T2'][n] < th and n not in {c['이름'] for c in cards if c['등급'] == '변동 큼'})
+        for th in (.75, .8, .85)}
+
+
+def corr(a, b):
+    ma, mb = sum(a) / len(a), sum(b) / len(b)
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b)) / (sum((x - ma) ** 2 for x in a) * sum((y - mb) ** 2 for y in b)) ** .5
+
+
+# 입도 의존도: 36개월 월별 방문이 전체 입도객과 얼마나 같이 움직이는가. 낮으면 지역 고유 수요가 크다.
+dep = {n: corr([month_visit[n, m] for m in months], [ipdo[m] for m in months]) for n in core}
+weak_set = {c['이름'] for c in weak}
+dep_weak = sum(dep[n] for n in weak_set) / len(weak_set)
+dep_rest = sum(dep[n] for n in core if n not in weak_set) / (len(core) - len(weak_set))
+# 한라산 탐방객 월평균과 입도 월평균의 계절 정점 비교(누락 월 제외)
+mm = lambda d: {m[4:]: sum(v for k, v in d.items() if k[4:] == m[4:] and '202308' <= k <= '202607') / sum(1 for k in d if k[4:] == m[4:] and '202308' <= k <= '202607') for m in months}
+hm, im = mm(halla), mm(ipdo)
+
+
 def peak(d):
     return max((m for m in months[-12:] if m in d), key=lambda m: d[m])
 
@@ -202,6 +222,9 @@ result = {
            '순위상관': {'T0-T1': round(stab01, 3), 'T1-T2': round(stab12, 3), 'T0-T2': round(stab02, 3)},
            '순위상관_T0T2_순열p': round(stab_p, 4), 'WAPE_제주평균': round(wape_base * 100, 1), 'WAPE_읍면동지수': round(wape_ours * 100, 1)},
     '80퍼센트도달산술억': round(gap_won / 1e8),
+    '민감도': {k: len(v) for k, v in sens.items()}, '민감도_공통': sorted(set(sens['0.75']) & set(sens['0.85'])),
+    '입도동조': {'부족17': round(dep_weak, 3), '나머지': round(dep_rest, 3)},
+    '월평균정점': {'입도': sorted(im, key=im.get)[-3:], '한라산': sorted(hm, key=hm.get)[-3:], '한라산_최저': sorted(hm, key=hm.get)[:2], '입도_최저': sorted(im, key=im.get)[:2]},
     '최근12개월정점': {'입도': peak(ipdo), '한라산': peak(halla)},
     '한라산누락월': halla_gap,
     '실행초': round(elapsed, 2),
