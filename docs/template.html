@@ -1,0 +1,33 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>제주 읍면동 소비 전환 진단표</title>
+<style>
+:root{--bg:#FAFAF9;--card:#fff;--ink:#292524;--mut:#78716C;--line:#E7E5E4;--acc:#C2410C;--gray:#A8A29E}
+@media (prefers-color-scheme:dark){:root{--bg:#1C1917;--card:#292524;--ink:#F5F5F4;--mut:#A8A29E;--line:#44403C;--acc:#FB923C;--gray:#78716C}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,"Noto Sans KR",sans-serif}
+main{max-width:980px;margin:auto;padding:24px 16px 48px}h1{font-size:24px;margin:0 0 4px}p{margin:4px 0;color:var(--mut)}
+.f{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:4px 12px;border-radius:999px;cursor:pointer}button[aria-pressed=true]{border-color:var(--acc);color:var(--acc);font-weight:600}
+.g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px}@media(max-width:720px){.g{grid-template-columns:minmax(0,1fr)}}
+.l{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;max-height:640px;overflow:auto}.r{display:grid;grid-template-columns:72px 1fr 40px;gap:8px;align-items:center;padding:3px 6px;border:0;background:none;width:100%;border-radius:6px;text-align:left}.r:hover,.r[aria-current=true]{background:var(--line)}
+.b{height:8px;border-radius:4px;background:var(--gray)}.b.w{background:var(--acc)}.n{text-align:right;font-variant-numeric:tabular-nums}
+.c{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px}.c h2{margin:0;font-size:20px}.tag{color:var(--acc);font-weight:600}.s{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.s div{border-top:1px solid var(--line);padding-top:6px}.s b{display:block;font-size:18px}.s span{color:var(--mut);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:3px 4px;border-bottom:1px solid var(--line);text-align:left}td:last-child,th:last-child{text-align:right}h3{font-size:15px;margin:14px 0 4px}footer{margin-top:24px;font-size:13px;color:var(--mut)}
+</style></head><body><main>
+<h1>제주 읍면동 소비 전환 진단표</h1>
+<p>관광객이 방문한 만큼 그 동네에서 소비가 일어나는지 43개 읍면동을 비교합니다. 기준 기간은 2025년 8월~2026년 7월이고, 지수 1.0은 제주 평균입니다.</p>
+<div class="f" id="f"></div><div class="g"><div class="l" id="l"></div><div class="c" id="c" aria-live="polite"></div></div>
+<footer>데이터: 제주관광빅데이터플랫폼 데이터 픽(SKT 방문, BC카드 소비, 티맵 도착, 입도, 한라산). 지수는 방문 1회당 관광객 카드 소비를 제주 평균으로 나눈 상대값입니다. 카드 소비는 전체 소비가 아니며, 인과나 정책 효과를 뜻하지 않습니다. 업종 비율은 같은 읍면 또는 동 그룹의 중앙값 대비 값입니다.</footer>
+</main><script>
+const D=__DATA__,C=D.카드,G=['전체','구조적 전환 부족','전환 다소 낮음','전환 양호','변동 큼','표본 작음'];let g='구조적 전환 부족',cur;
+const $=i=>document.getElementById(i),won=n=>n.toLocaleString('ko-KR');
+function card(c){cur=c.이름;const u=Object.entries(c.업종).sort((a,b)=>a[1]-b[1]);
+$('c').innerHTML=`<h2>${c.이름}</h2><span class="tag">${c.등급}</span> <span style="color:var(--mut)">${c.권역}</span>
+<div class="s"><div><b>${c.지수[2].toFixed(2)}</b><span>전환 지수</span></div><div><b>${won(c.방문당소비)}원</b><span>방문 1회당 소비</span></div><div><b>${c.외국인비중}%</b><span>외국인 소비 비중</span></div></div>
+<div class="s"><div><b>${(c.방문/1e4).toFixed(0)}만</b><span>12개월 방문</span></div><div><b>${c.관광소비억}억</b><span>12개월 관광 소비</span></div><div><b>${c.성수비}배</b><span>최다·최소 방문월 차이</span></div></div>
+<h3>지수 변화</h3><table><tr><th>2023.8~24.7</th><th>2024.8~25.7</th><th>2025.8~26.7</th></tr><tr><td>${c.지수[0]}</td><td>${c.지수[1]}</td><td>${c.지수[2]}</td></tr></table>
+<h3>업종별 방문당 소비 (동종 그룹 중앙값=1)</h3><table>${u.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table>
+${c.오름.length?`<h3>오름·곶자왈 관광객 차량 도착 (2025)</h3><table>${c.오름.map(([k,v])=>`<tr><td>${k}</td><td>${won(v)}</td></tr>`).join('')}</table>`:''}`;draw()}
+function draw(){const L=C.filter(c=>g=='전체'||c.등급==g).sort((a,b)=>a.지수[2]-b.지수[2]),M=Math.max(...C.map(c=>c.지수[2]));
+$('f').innerHTML=G.map(x=>`<button aria-pressed="${x==g}" data-g="${x}">${x} ${x=='전체'?C.length:C.filter(c=>c.등급==x).length}</button>`).join('');
+$('l').innerHTML=L.map(c=>`<button class="r" aria-current="${c.이름==cur}" data-n="${c.이름}" title="${c.등급}"><span>${c.이름}</span><span class="b ${c.등급=='구조적 전환 부족'?'w':''}" style="width:${c.지수[2]/M*100}%"></span><span class="n">${c.지수[2].toFixed(2)}</span></button>`).join('')}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.g){g=b.dataset.g;const L=C.filter(c=>g=='전체'||c.등급==g).sort((x,y)=>x.지수[2]-y.지수[2]);card(L[0])}else if(b.dataset.n)card(C.find(c=>c.이름==b.dataset.n))});
+card(C.filter(c=>c.등급==g).sort((a,b)=>a.지수[2]-b.지수[2])[0]);
+</script></body></html>
